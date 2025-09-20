@@ -9,6 +9,7 @@ describe('TodoStats', () => {
         text,
         completed,
         createdAt: new Date(),
+        priority: 'medium',
     });
 
     it('displays correct counts for empty todo list', () => {
@@ -18,9 +19,9 @@ describe('TodoStats', () => {
         const zeroElements = screen.getAllByText('0');
         expect(zeroElements).toHaveLength(3);
 
-        expect(screen.getByText('Total Tasks')).toBeInTheDocument();
-        expect(screen.getByText('Completed')).toBeInTheDocument();
-        expect(screen.getByText('Remaining')).toBeInTheDocument();
+        expect(screen.getByText('Total')).toBeInTheDocument();
+        expect(screen.getByText('Done')).toBeInTheDocument();
+        expect(screen.getByText('Left')).toBeInTheDocument();
     });
 
     it('displays correct counts for todos with no completed items', () => {
@@ -40,9 +41,9 @@ describe('TodoStats', () => {
         expect(screen.getByText('0')).toBeInTheDocument();
 
         // Verify labels are present
-        expect(screen.getByText('Total Tasks')).toBeInTheDocument();
-        expect(screen.getByText('Completed')).toBeInTheDocument();
-        expect(screen.getByText('Remaining')).toBeInTheDocument();
+        expect(screen.getByText('Total')).toBeInTheDocument();
+        expect(screen.getByText('Done')).toBeInTheDocument();
+        expect(screen.getByText('Left')).toBeInTheDocument();
     });
 
     it('displays correct counts for todos with all completed items', () => {
@@ -110,15 +111,15 @@ describe('TodoStats', () => {
 
         const { container } = render(<TodoStats todos={todos} />);
 
-        // Check for main container with gradient background
-        expect(container.querySelector('.bg-gradient-to-r')).toBeInTheDocument();
+        // Check for main container
+        expect(container.querySelector('.w-full')).toBeInTheDocument();
 
-        // Check for grid layout
-        expect(container.querySelector('.grid-cols-1')).toBeInTheDocument();
+        // Check for grid layout with 3 columns
+        expect(container.querySelector('.grid-cols-3')).toBeInTheDocument();
 
-        // Check for individual stat cards
-        const statCards = container.querySelectorAll('.bg-white.rounded-xl');
-        expect(statCards).toHaveLength(3);
+        // Check for text-center classes for stat items (3 stats + 1 motivational message)
+        const statItems = container.querySelectorAll('.text-center');
+        expect(statItems).toHaveLength(4);
     });
 
     it('displays the correct title', () => {

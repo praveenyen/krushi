@@ -30,7 +30,7 @@ describe('TodoApp', () => {
       render(<TodoApp />);
       
       expect(screen.getByText('Todo App')).toBeInTheDocument();
-      expect(screen.getByText('Organize your tasks with style and efficiency')).toBeInTheDocument();
+      expect(screen.getByText(/Organize your tasks with style and efficiency/)).toBeInTheDocument();
       expect(screen.getByPlaceholderText('What needs to be done?')).toBeInTheDocument();
       expect(screen.getByText('Add')).toBeInTheDocument();
       expect(screen.getByText('Progress Overview')).toBeInTheDocument();
@@ -51,7 +51,8 @@ describe('TodoApp', () => {
           id: '1',
           text: 'Test todo',
           completed: false,
-          createdAt: new Date('2023-01-01')
+          createdAt: new Date('2023-01-01'),
+          priority: 'medium'
         }
       ];
       
@@ -154,7 +155,8 @@ describe('TodoApp', () => {
           id: '1',
           text: 'Test todo',
           completed: false,
-          createdAt: new Date('2023-01-01')
+          createdAt: new Date('2023-01-01'),
+          priority: 'medium'
         }
       ];
       
@@ -182,7 +184,8 @@ describe('TodoApp', () => {
           id: '1',
           text: 'Completed todo',
           completed: true,
-          createdAt: new Date('2023-01-01')
+          createdAt: new Date('2023-01-01'),
+          priority: 'high'
         }
       ];
       
@@ -212,13 +215,15 @@ describe('TodoApp', () => {
           id: '1',
           text: 'Todo to delete',
           completed: false,
-          createdAt: new Date('2023-01-01')
+          createdAt: new Date('2023-01-02'),
+          priority: 'medium'
         },
         {
           id: '2',
           text: 'Todo to keep',
           completed: false,
-          createdAt: new Date('2023-01-02')
+          createdAt: new Date('2023-01-01'),
+          priority: 'high'
         }
       ];
       
@@ -248,7 +253,8 @@ describe('TodoApp', () => {
           id: '1',
           text: 'Only todo',
           completed: false,
-          createdAt: new Date('2023-01-01')
+          createdAt: new Date('2023-01-01'),
+          priority: 'low'
         }
       ];
       
@@ -278,7 +284,7 @@ describe('TodoApp', () => {
       
       await waitFor(() => {
         // Check that total count shows 1
-        const totalStats = screen.getByText('Total Tasks').parentElement;
+        const totalStats = screen.getByText('Total').parentElement;
         expect(totalStats?.querySelector('.text-2xl')).toHaveTextContent('1');
       });
       
@@ -288,7 +294,7 @@ describe('TodoApp', () => {
       
       await waitFor(() => {
         // Check that total count shows 2
-        const totalStats = screen.getByText('Total Tasks').parentElement;
+        const totalStats = screen.getByText('Total').parentElement;
         expect(totalStats?.querySelector('.text-2xl')).toHaveTextContent('2');
       });
     });

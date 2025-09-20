@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TodoInput from '../TodoInput';
 
 describe('TodoInput', () => {
@@ -46,7 +46,7 @@ describe('TodoInput', () => {
     const form = screen.getByRole('button', { name: 'Add todo' }).closest('form');
     fireEvent.submit(form!);
     
-    expect(mockOnSubmit).toHaveBeenCalledWith('Valid todo');
+    expect(mockOnSubmit).toHaveBeenCalledWith('Valid todo', 'medium');
   });
 
   it('calls onSubmit when add button is clicked with valid text', () => {
@@ -55,7 +55,7 @@ describe('TodoInput', () => {
     const addButton = screen.getByRole('button', { name: 'Add todo' });
     fireEvent.click(addButton);
     
-    expect(mockOnSubmit).toHaveBeenCalledWith('Valid todo');
+    expect(mockOnSubmit).toHaveBeenCalledWith('Valid todo', 'medium');
   });
 
   it('calls onSubmit when Enter key is pressed with valid text', () => {
@@ -64,7 +64,7 @@ describe('TodoInput', () => {
     const input = screen.getByPlaceholderText('What needs to be done?');
     fireEvent.keyDown(input, { key: 'Enter' });
     
-    expect(mockOnSubmit).toHaveBeenCalledWith('Valid todo');
+    expect(mockOnSubmit).toHaveBeenCalledWith('Valid todo', 'medium');
   });
 
   it('prevents submission when input is empty', () => {
@@ -93,7 +93,7 @@ describe('TodoInput', () => {
     const addButton = screen.getByRole('button', { name: 'Add todo' });
     fireEvent.click(addButton);
     
-    expect(mockOnSubmit).toHaveBeenCalledWith('Valid todo');
+    expect(mockOnSubmit).toHaveBeenCalledWith('Valid todo', 'medium');
   });
 
   it('shows error message when trying to submit empty input', () => {

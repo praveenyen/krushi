@@ -21,12 +21,14 @@ describe('localStorage service', () => {
       text: 'Test todo 1',
       completed: false,
       createdAt: new Date('2023-01-01T00:00:00.000Z'),
+      priority: 'medium',
     },
     {
       id: '2',
       text: 'Test todo 2',
       completed: true,
       createdAt: new Date('2023-01-02T00:00:00.000Z'),
+      priority: 'high',
     },
   ]
 
@@ -162,6 +164,124 @@ describe('localStorage service', () => {
       expect(console.error).toHaveBeenCalledWith(
         'Failed to load todos from localStorage:',
         error
+      )
+    })
+
+    it('should migrate todos without priority field to default medium priority', () => {
+      const todosWithoutPriority = [
+        {
+          id: '1',
+          text: 'Test todo 1',
+          completed: false,
+          createdAt: new Date('2023-01-01T00:00:00.000Z'),
+        },
+        {
+          id: '2',
+          text: 'Test todo 2',
+          completed: true,
+          createdAt: new Date('2023-01-02T00:00:00.000Z'),
+        },
+      ]
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(todosWithoutPriority))
+      mockLocalStorage.setItem.mockImplementation(() => {})
+      
+      const result = loadTodos()
+      
+      expect(result).toHaveLength(2)
+      expect(result[0].priority).toBe('medium')
+      expect(result[1].priority).toBe('medium')
+      
+      // Verify that migrated data is saved back to localStorage
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        'todos',
+        expect.stringContaining('"priority":"medium"')
+      )
+    })
+
+    it('should migrate todos with invalid priority to medium priority', () => {
+      const todosWithInvalidPriority = [
+        {
+          id: '1',
+          text: 'Test todo 1',
+          completed: false,
+          createdAt: new Date('2023-01-01T00:00:00.000Z'),
+          priority: 'invalid',
+        },
+        {
+          id: '2',
+          text: 'Test todo 2',
+          completed: true,
+          createdAt: new Date('2023-01-02T00:00:00.000Z'),
+          priority: 'urgent', // Not a valid priority
+        },
+      ]
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(todosWithInvalidPriority))
+      mockLocalStorage.setItem.mockImplementation(() => {})
+      
+      const result = loadTodos()
+      
+      expect(result).toHaveLength(2)
+      expect(result[0].priority).toBe('medium')
+      expect(result[1].priority).toBe('medium')
+      expect(console.warn).toHaveBeenCalledWith(
+        'Invalid priority "invalid" found, setting to medium'
+      )
+      expect(console.warn).toHaveBeenCalledWith(
+        'Invalid priority "urgent" found, setting to medium'
+      )
+    })
+
+    it('should not perform migration when all todos have valid priority', () => {
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mockTodos))
+      mockLocalStorage.setItem.mockImplementation(() => {})
+      
+      const result = loadTodos()
+      
+      expect(result).toHaveLength(2)
+      expect(result[0].priority).toBe('medium')
+      expect(result[1].priority).toBe('high')
+      
+      // Verify that no migration save was performed
+      expect(mockLocalStorage.setItem).not.toHaveBeenCalled()
+    })
+
+    it('should handle mixed migration scenarios', () => {
+      const mixedTodos = [
+        {
+          id: '1',
+          text: 'Todo with valid priority',
+          completed: false,
+          createdAt: new Date('2023-01-01T00:00:00.000Z'),
+          priority: 'high',
+        },
+        {
+          id: '2',
+          text: 'Todo without priority',
+          completed: false,
+          createdAt: new Date('2023-01-02T00:00:00.000Z'),
+        },
+        {
+          id: '3',
+          text: 'Todo with invalid priority',
+          completed: true,
+          createdAt: new Date('2023-01-03T00:00:00.000Z'),
+          priority: 'critical',
+        },
+      ]
+      mockLocalStorage.getItem.mockReturnValue(JSON.stringify(mixedTodos))
+      mockLocalStorage.setItem.mockImplementation(() => {})
+      
+      const result = loadTodos()
+      
+      expect(result).toHaveLength(3)
+      expect(result[0].priority).toBe('high') // unchanged
+      expect(result[1].priority).toBe('medium') // migrated from missing
+      expect(result[2].priority).toBe('medium') // migrated from invalid
+      
+      // Verify migration was performed and saved
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+        'todos',
+        expect.stringContaining('"priority":"medium"')
       )
     })
   })

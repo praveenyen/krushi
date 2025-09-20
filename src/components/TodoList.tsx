@@ -1,8 +1,8 @@
 import React from 'react';
-import { TodoListProps } from '../types/todo';
+import { TodoListProps, TodoSortOption } from '../types/todo';
 import TodoItem from './TodoItem';
 
-export default function TodoList({ todos, onToggle, onDelete }: TodoListProps) {
+export default function TodoList({ todos, onToggle, onDelete, sortBy, onSortChange }: TodoListProps) {
   // Handle empty state when no todos exist
   if (todos.length === 0) {
     return (
@@ -31,8 +31,36 @@ export default function TodoList({ todos, onToggle, onDelete }: TodoListProps) {
   const incompleteTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
 
+  const sortOptions: { value: TodoSortOption; label: string }[] = [
+    { value: 'createdAt', label: 'Recent' },
+    { value: 'priority', label: 'Priority' },
+    { value: 'alphabetical', label: 'A-Z' }
+  ];
+
   return (
     <div className="space-y-6">
+      {/* Sorting Controls */}
+      {incompleteTodos.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center">
+            Sort by:
+          </span>
+          {sortOptions.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => onSortChange(option.value)}
+              className={`px-3 py-1 text-sm font-medium rounded-lg transition-all duration-200
+                ${sortBy === option.value
+                  ? 'bg-blue-500 text-white shadow-md'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Active Todos Section */}
       {incompleteTodos.length > 0 && (
         <div>

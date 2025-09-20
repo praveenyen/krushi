@@ -19,7 +19,7 @@ export function saveTodos(todos: Todo[]): boolean {
 }
 
 /**
- * Loads todos array from localStorage
+ * Loads todos array from localStorage with automatic migration for legacy data
  * @returns Array of Todo items (empty array if no data or error)
  */
 export function loadTodos(): Todo[] {
@@ -38,8 +38,24 @@ export function loadTodos(): Todo[] {
       return [];
     }
 
-    // Convert createdAt strings back to Date objects and validate todo structure
-    return parsedTodos.map((todo: Todo) => {
+    let migrationPerformed = false;
+
+    // Convert createdAt strings back to Date objects and handle migration
+    const migratedTodos = parsedTodos.map((todo: Todo) => {
+      // Handle migration for todos without priority field (backward compatibility)
+      if (!todo.priority) {
+        todo.priority = 'medium'; // Default priority for existing todos
+        migrationPerformed = true;
+      }
+      
+      // Validate priority field exists and is valid
+      const validPriorities = ['low', 'medium', 'high'];
+      if (!validPriorities.includes(todo.priority)) {
+        console.warn(`Invalid priority "${todo.priority}" found, setting to medium`);
+        todo.priority = 'medium';
+        migrationPerformed = true;
+      }
+      
       if (!isValidTodo(todo)) {
         console.warn('Invalid todo item found, skipping:', todo);
         return null;
@@ -50,6 +66,14 @@ export function loadTodos(): Todo[] {
         createdAt: new Date(todo.createdAt)
       };
     }).filter(Boolean) as Todo[];
+
+    // If migration was performed, save the migrated data back to localStorage
+    if (migrationPerformed) {
+      console.info('Todo data migration performed, updating localStorage with priority fields');
+      saveTodos(migratedTodos);
+    }
+
+    return migratedTodos;
     
   } catch (error) {
     console.error('Failed to load todos from localStorage:', error);
@@ -82,6 +106,7 @@ export function isLocalStorageAvailable(): boolean {
     localStorage.removeItem(testKey);
     return true;
   } catch (error) {
+    console.error('localStorage is not available:', error);
     return false;
   }
 }
@@ -92,12 +117,14 @@ export function isLocalStorageAvailable(): boolean {
  * @returns boolean indicating if object is a valid Todo
  */
 function isValidTodo(todo: Todo): boolean {
+  const validPriorities = ['low', 'medium', 'high'];
   return (
     todo &&
     typeof todo === 'object' &&
     typeof todo.id === 'string' &&
     typeof todo.text === 'string' &&
     typeof todo.completed === 'boolean' &&
-    (todo.createdAt instanceof Date || typeof todo.createdAt === 'string')
+    (todo.createdAt instanceof Date || typeof todo.createdAt === 'string') &&
+    (typeof todo.priority === 'string' && validPriorities.includes(todo.priority))
   );
 }

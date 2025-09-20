@@ -57,3 +57,38 @@ This feature implements a simple todo application that allows users to manage th
 2. WHEN the todo list is displayed THEN the system SHALL show the number of completed items
 3. WHEN the todo list is displayed THEN the system SHALL show the number of remaining (incomplete) items
 4. WHEN todo items are added, completed, or deleted THEN the system SHALL update the counts in real-time
+
+### Requirement 6
+
+**User Story:** As a user, I want the app to have a split layout design, so that I can easily focus on different aspects of task management.
+
+#### Acceptance Criteria
+
+1. WHEN the application loads THEN the system SHALL display a split layout with two equal halves
+2. WHEN viewing the left half THEN the system SHALL show the app header and progress overview
+3. WHEN viewing the right half THEN the system SHALL show the todo input form and todo list
+4. WHEN using the application on different screen sizes THEN the system SHALL maintain responsive design principles
+
+### Requirement 7
+
+**User Story:** As a user, I want to assign priorities to my todo items, so that I can organize tasks by importance.
+
+#### Acceptance Criteria
+
+1. WHEN creating a new todo item THEN the system SHALL allow me to select a priority level (low, medium, high)
+2. WHEN no priority is explicitly selected THEN the system SHALL assign a default priority of "medium"
+3. WHEN viewing todo items THEN the system SHALL display visual indicators for each priority level
+4. WHEN viewing todo items THEN the system SHALL use distinct colors for different priority levels (red for high, yellow for medium, green for low)
+
+### Requirement 8
+
+**User Story:** As a user, I want to sort my pending todo items, so that I can organize them according to my preferences.
+
+#### Acceptance Criteria
+
+1. WHEN viewing pending todos THEN the system SHALL provide sorting options (timestamp, priority, alphabetical)
+2. WHEN sorting by timestamp THEN the system SHALL display newest items first
+3. WHEN sorting by priority THEN the system SHALL display high priority items first, then medium, then low
+4. WHEN sorting by alphabetical THEN the system SHALL display items in A-Z order
+5. WHEN sorting is applied THEN the system SHALL only sort pending todos, keeping completed todos at the bottom
+6. WHEN the application loads THEN the system SHALL default to sorting by timestamp

@@ -38,16 +38,35 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
         </div>
       </div>
 
+      {/* Priority indicator */}
+      <div className="flex-shrink-0">
+        <div className={`w-3 h-3 rounded-full
+          ${todo.priority === 'high' ? 'bg-red-500' : 
+            todo.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+          }`}
+          title={`Priority: ${todo.priority}`}
+        />
+      </div>
+
       {/* Todo text with enhanced styling */}
       <div className="flex-1 min-w-0">
-        <p className={`text-base sm:text-lg font-medium transition-all duration-300
-          ${todo.completed
-            ? 'line-through text-gray-500 dark:text-gray-400'
-            : 'text-gray-900 dark:text-gray-100'
-          }`}>
-          {todo.text}
-        </p>
-        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <div className="flex items-center gap-2 mb-1">
+          <p className={`text-base sm:text-lg font-medium transition-all duration-300
+            ${todo.completed
+              ? 'line-through text-gray-500 dark:text-gray-400'
+              : 'text-gray-900 dark:text-gray-100'
+            }`}>
+            {todo.text}
+          </p>
+          <span className={`px-2 py-1 text-xs font-medium rounded-full
+            ${todo.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' :
+              todo.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
+              'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+            }`}>
+            {todo.priority}
+          </span>
+        </div>
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
           {new Date(todo.createdAt).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',

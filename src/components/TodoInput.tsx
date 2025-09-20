@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { TodoInputProps } from '../types/todo';
+import { TodoInputProps, TodoPriority } from '../types/todo';
 
 export default function TodoInput({ value, onChange, onSubmit }: TodoInputProps) {
   const [error, setError] = useState<string>('');
+  const [priority, setPriority] = useState<TodoPriority>('medium');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,8 +20,11 @@ export default function TodoInput({ value, onChange, onSubmit }: TodoInputProps)
     // Clear any previous error
     setError('');
     
-    // Submit the todo
-    onSubmit(trimmedValue);
+    // Submit the todo with priority
+    onSubmit(trimmedValue, priority);
+    
+    // Reset priority to default after submission
+    setPriority('medium');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,8 +44,43 @@ export default function TodoInput({ value, onChange, onSubmit }: TodoInputProps)
     }
   };
 
+  const priorityColors = {
+    low: 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200',
+    medium: 'bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200',
+    high: 'bg-red-100 text-red-800 border-red-300 hover:bg-red-200'
+  };
+
+  const activePriorityColors = {
+    low: 'bg-green-500 text-white border-green-500',
+    medium: 'bg-yellow-500 text-white border-yellow-500',
+    high: 'bg-red-500 text-white border-red-500'
+  };
+
   return (
     <div className="w-full">
+      {/* Priority Selection */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Priority Level
+        </label>
+        <div className="flex gap-2">
+          {(['low', 'medium', 'high'] as TodoPriority[]).map((level) => (
+            <button
+              key={level}
+              type="button"
+              onClick={() => setPriority(level)}
+              className={`px-3 py-2 text-sm font-medium border rounded-lg transition-all duration-200 capitalize
+                ${priority === level 
+                  ? activePriorityColors[level]
+                  : priorityColors[level]
+                }`}
+            >
+              {level}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="flex-1">
           <input
