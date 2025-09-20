@@ -3,17 +3,37 @@ import ThemeSwitch from "../components/ThemeSwitch";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10"></div>
-      
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" aria-hidden="true"></div>
+
       {/* Theme Switch */}
       <ThemeSwitch />
-      
+
       {/* Main Content */}
       <div className="relative z-10">
         <TodoApp />
       </div>
-    </div>
+
+      {/* Hidden content for SEO */}
+      <div className="sr-only">
+        <h1>Krushi - Harness the Power of Daily Effort</h1>
+        <p>
+          Harness the power of your daily effort with Krushi, the minimalist app designed to help you focus on what truly matters: consistent progress.
+          Build sustainable habits, track your daily efforts, and maintain focus on meaningful tasks that drive real progress.
+        </p>
+        <h2>Key Features</h2>
+        <ul>
+          <li>Minimalist task management focused on daily effort</li>
+          <li>Progress tracking for consistent habit building</li>
+          <li>Priority-based task organization</li>
+          <li>Clean, distraction-free interface</li>
+          <li>Dark and light theme support</li>
+          <li>Automatic progress persistence</li>
+          <li>Mobile-responsive design</li>
+          <li>Focus on what truly matters</li>
+        </ul>
+      </div>
+    </main>
   );
 }

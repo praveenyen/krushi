@@ -46,11 +46,13 @@ export default function ThemeSwitch() {
   return (
     <button
       onClick={toggleTheme}
-      className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+      className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       title={`Current theme: ${getLabel()}. Click to cycle through themes.`}
+      aria-label={`Switch theme. Current theme: ${getLabel()}`}
+      type="button"
     >
       {getIcon()}
-      <span className="text-sm font-medium hidden sm:inline">{getLabel()}</span>
+      <span className="text-sm font-medium hidden sm:inline" aria-hidden="true">{getLabel()}</span>
     </button>
   );
 }

@@ -108,33 +108,33 @@ export default function TodoApp() {
   }, [todos, sortBy]);
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <article className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* Split Layout Container */}
         <div className="flex flex-col lg:flex-row min-h-[600px]">
           
           {/* Left Half - App Header and Progress Overview */}
-          <div className="w-full lg:w-1/2 bg-gradient-to-br from-blue-600 to-purple-600 flex flex-col justify-center items-center p-6 sm:p-8 lg:p-12">
+          <header className="w-full lg:w-1/2 bg-gradient-to-br from-blue-600 to-purple-600 flex flex-col justify-center items-center p-6 sm:p-8 lg:p-12">
             <div className="text-center space-y-6 max-w-md">
               {/* App Header */}
               <div>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
-                  Todo App
+                  Krushi
                 </h1>
                 <p className="text-blue-100 text-sm sm:text-base lg:text-lg leading-relaxed">
-                  Organize your tasks with style and efficiency. Stay focused and get things done.
+                  Harness the power of your daily effort. Focus on what truly matters: consistent progress.
                 </p>
               </div>
               
               {/* Progress Overview */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <aside className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20" aria-label="Task Statistics">
                 <TodoStats todos={todos} />
-              </div>
+              </aside>
             </div>
-          </div>
+          </header>
 
           {/* Right Half - Todo Input and List */}
-          <div className="w-full lg:w-1/2 flex flex-col">
+          <section className="w-full lg:w-1/2 flex flex-col" aria-label="Task Management">
             {/* Todo Input Section */}
             <div className="bg-gray-50 dark:bg-gray-700 p-6 sm:p-8 border-b border-gray-200 dark:border-gray-600">
               <TodoInput
@@ -154,9 +154,9 @@ export default function TodoApp() {
                 onSortChange={setSortBy}
               />
             </div>
-          </div>
+          </section>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
