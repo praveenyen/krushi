@@ -39,7 +39,7 @@ export function loadTodos(): Todo[] {
     }
 
     // Convert createdAt strings back to Date objects and validate todo structure
-    return parsedTodos.map((todo: any) => {
+    return parsedTodos.map((todo: Todo) => {
       if (!isValidTodo(todo)) {
         console.warn('Invalid todo item found, skipping:', todo);
         return null;
@@ -91,7 +91,7 @@ export function isLocalStorageAvailable(): boolean {
  * @param todo - Object to validate
  * @returns boolean indicating if object is a valid Todo
  */
-function isValidTodo(todo: any): boolean {
+function isValidTodo(todo: Todo): boolean {
   return (
     todo &&
     typeof todo === 'object' &&

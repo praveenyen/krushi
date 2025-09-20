@@ -112,7 +112,7 @@ export const TodoStats: React.FC<TodoStatsProps> = ({ todos }) => {
             </p>
           ) : remainingCount <= 3 && remainingCount > 1 ? (
             <p className="text-blue-700 dark:text-blue-400 font-medium">
-              🚀 You're doing great! Only {remainingCount} tasks left!
+              🚀 You&apos;re doing great! Only {remainingCount} tasks left!
             </p>
           ) : null}
         </div>

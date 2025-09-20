@@ -6,7 +6,8 @@ import { Todo } from '../../types/todo';
 
 // Mock TodoItem component to isolate TodoList testing
 vi.mock('../TodoItem', () => ({
-  default: ({ todo, onToggle, onDelete }: any) => (
+  default: ({ todo, onToggle, onDelete }: { todo: Todo; onToggle: () => void; onDelete: () => void }
+  ) => (
     <div data-testid={`todo-item-${todo.id}`}>
       <span>{todo.text}</span>
       <button onClick={onToggle} data-testid={`toggle-${todo.id}`}>
