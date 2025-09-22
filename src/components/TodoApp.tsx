@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import { loadTodos, saveTodos } from '../services/localStorage';
 import { useTodoStore } from '../stores/todoStore';
 import { useTimerStore } from '../stores/timerStore';
 import TodoInput from './TodoInput';
@@ -47,23 +46,13 @@ export default function TodoApp() {
     closeTimerOverlay,
   } = useTimerStore();
 
-  // Load existing todos on component mount
+  // Load todos from Supabase on component mount
   useEffect(() => {
-    const savedTodos = loadTodos();
-    if (savedTodos.length > 0) {
-      setTodos(savedTodos);
-    }
-  }, [setTodos]);
-
-  // Save todos to localStorage whenever todos change
-  useEffect(() => {
-    if (todos.length > 0) {
-      const success = saveTodos(todos);
-      if (!success) {
-        console.warn('Failed to save todos to localStorage');
-      }
-    }
-  }, [todos]);
+    // Sync todos from Supabase when component mounts
+    useTodoStore.getState().syncTodos().catch((error) => {
+      console.warn('Failed to sync todos from Supabase:', error);
+    });
+  }, []);
 
   // Cleanup timer on unmount
   useEffect(() => {
