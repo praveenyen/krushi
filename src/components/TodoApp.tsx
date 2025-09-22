@@ -74,6 +74,8 @@ export default function TodoApp() {
     };
   }, []);
 
+
+
   /**
    * Starts a pomodoro timer for a specific todo
    * @param id - ID of the todo to start timer for
@@ -107,11 +109,15 @@ export default function TodoApp() {
     startTimerStore(id);
 
     // Set timer to complete after duration
-    console.log(`Starting timer for ${config.defaultDuration} minutes (${config.defaultDuration * 60 * 1000}ms)`);
+    // Use shorter duration in development for testing
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const timerDuration = isDevelopment 
+      ? 10 * 1000 // 10 seconds in development
+      : config.defaultDuration * 60 * 1000; // Normal duration in production
+    
     timerTimeoutRef.current = setTimeout(() => {
-      console.log(`Timer completed for todo: ${todo.text}`);
       handleTimerComplete(id, todo.text);
-    }, config.defaultDuration * 60 * 1000);
+    }, timerDuration);
   };
 
   /**
@@ -140,7 +146,6 @@ export default function TodoApp() {
    * @param text - Text of the todo
    */
   const handleTimerComplete = (id: string, text: string) => {
-    console.log(`handleTimerComplete called for: ${text}`);
     // Clear the timeout ref
     timerTimeoutRef.current = null;
     
@@ -148,7 +153,6 @@ export default function TodoApp() {
       timerStatus: 'completed',
     });
 
-    console.log('Calling completeTimer...');
     completeTimer(id, text);
   };
 
