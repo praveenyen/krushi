@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { TodoService, todoService, type TodoOperation, type RealtimePayload } from '../todoService';
-import type { Todo, TodoPriority } from '../../types/todo';
+import { TodoService, todoService, type TodoOperation } from '../todoService';
+import type { Todo } from '../../types/todo';
 
 // Mock the supabase import
 vi.mock('../supabase', () => {
@@ -20,7 +20,12 @@ vi.mock('../supabase', () => {
 
 // Import the mocked supabase for test setup
 import { supabase } from '../supabase';
-const mockSupabase = supabase as any;
+const mockSupabase = supabase as {
+  auth: { getUser: ReturnType<typeof vi.fn> };
+  from: ReturnType<typeof vi.fn>;
+  channel: ReturnType<typeof vi.fn>;
+  removeChannel: ReturnType<typeof vi.fn>;
+};
 
 // Mock data
 const mockUser = {
@@ -385,7 +390,7 @@ describe('TodoService', () => {
     it('should throw error for unknown operation type', async () => {
       const operations = [
         {
-          type: 'unknown' as any,
+          type: 'unknown' as 'create' | 'update' | 'delete',
           todo: mockTodo,
           timestamp: new Date(),
           retryCount: 0,

@@ -128,6 +128,8 @@ describe('NetworkMonitor', () => {
         isOnline: true,
         lastOnlineTime: expect.any(Date),
         connectionType: '4g',
+        effectiveType: '4g',
+        downlink: undefined,
       });
     });
   });
@@ -240,7 +242,7 @@ describe('NetworkMonitor', () => {
       monitor.destroy();
 
       // Manually trigger the online handler to test if listeners are cleared
-      const status = monitor.getStatus();
+      monitor.getStatus();
       expect(listener).not.toHaveBeenCalled();
     });
   });
@@ -266,15 +268,15 @@ describe('Singleton NetworkMonitor', () => {
   });
 
   it('should be the same instance across imports', async () => {
-    const module = await import('../networkUtils');
-    expect(module.networkMonitor).toBe(networkMonitor);
+    const networkUtilsModule = await import('../networkUtils');
+    expect(networkUtilsModule.networkMonitor).toBe(networkMonitor);
   });
 });
 
 describe('Environment without connection API', () => {
   it('should work without navigator.connection', () => {
     const originalConnection = mockNavigator.connection;
-    delete (mockNavigator as any).connection;
+    delete (mockNavigator as Navigator & { connection?: unknown }).connection;
 
     const monitor = new NetworkMonitor();
     const status = monitor.getStatus();

@@ -368,12 +368,12 @@ export const useTodoStore = create<TodoState>()(
           if (localTodo && remoteTodo) {
             // Both exist - resolve conflict using server timestamp (last-write-wins)
             // Remote todos from server have updated_at, local todos might not
-            const remoteUpdatedAt = (remoteTodo as any).updated_at 
-              ? new Date((remoteTodo as any).updated_at) 
+            const remoteUpdatedAt = (remoteTodo as Todo & { updated_at?: string }).updated_at 
+              ? new Date((remoteTodo as Todo & { updated_at: string }).updated_at) 
               : remoteTodo.createdAt;
             
-            const localUpdatedAt = (localTodo as any).updated_at 
-              ? new Date((localTodo as any).updated_at) 
+            const localUpdatedAt = (localTodo as Todo & { updated_at?: string }).updated_at 
+              ? new Date((localTodo as Todo & { updated_at: string }).updated_at) 
               : localTodo.createdAt;
             
             // Use remote version if it's newer, otherwise keep local

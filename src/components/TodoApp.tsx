@@ -17,12 +17,11 @@ export default function TodoApp() {
   // Ref to track active timer timeout
   const timerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Todo store
+  // Todo store - remove unused setTodos
   const {
     todos,
     inputValue,
     sortBy,
-    setTodos,
     setInputValue,
     setSortBy,
     addTodo,

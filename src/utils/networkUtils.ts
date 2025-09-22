@@ -7,6 +7,15 @@ export interface NetworkStatus {
   isOnline: boolean;
   lastOnlineTime: Date | null;
   connectionType?: string;
+  effectiveType?: string;
+  downlink?: number;
+}
+
+interface NetworkInformation {
+  effectiveType?: string;
+  downlink?: number;
+  addEventListener: (type: string, listener: () => void) => void;
+  removeEventListener: (type: string, listener: () => void) => void;
 }
 
 export class NetworkMonitor {
@@ -26,8 +35,11 @@ export class NetworkMonitor {
     
     // Also listen for network connection changes if available
     if ('connection' in navigator) {
-      const connection = (navigator as any).connection;
-      connection.addEventListener('change', this.handleConnectionChange);
+      const nav = navigator as Navigator & { connection?: NetworkInformation };
+      const connection = nav.connection;
+      if (connection) {
+        connection.addEventListener('change', this.handleConnectionChange);
+      }
     }
   }
 
@@ -49,12 +61,17 @@ export class NetworkMonitor {
   };
 
   private handleConnectionChange = () => {
-    const connection = (navigator as any).connection;
-    this.currentStatus = {
-      ...this.currentStatus,
-      connectionType: connection.effectiveType,
-    };
-    this.notifyListeners();
+    const nav = navigator as Navigator & { connection?: NetworkInformation };
+    const connection = nav.connection;
+    if (connection) {
+      this.currentStatus = {
+        ...this.currentStatus,
+        connectionType: connection.effectiveType,
+        effectiveType: connection.effectiveType,
+        downlink: connection.downlink,
+      };
+      this.notifyListeners();
+    }
   };
 
   private notifyListeners() {
@@ -122,8 +139,11 @@ export class NetworkMonitor {
     window.removeEventListener('offline', this.handleOffline);
     
     if ('connection' in navigator) {
-      const connection = (navigator as any).connection;
-      connection.removeEventListener('change', this.handleConnectionChange);
+      const nav = navigator as Navigator & { connection?: NetworkInformation };
+      const connection = nav.connection;
+      if (connection) {
+        connection.removeEventListener('change', this.handleConnectionChange);
+      }
     }
     
     this.listeners.clear();
@@ -134,8 +154,9 @@ export class NetworkMonitor {
 export const networkMonitor = new NetworkMonitor();
 
 // For non-React usage, we need to import React conditionally
-let React: any;
+let React: typeof import('react') | null = null;
 try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   React = require('react');
 } catch {
   // React not available, hook won't work but other functions will

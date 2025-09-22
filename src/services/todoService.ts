@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 import type { Database } from '../types/supabase';
-import type { Todo, TodoPriority } from '../types/todo';
-import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import type { Todo } from '../types/todo';
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 // Database row type for todos
 type TodoRow = Database['public']['Tables']['todos']['Row'];
@@ -71,7 +71,8 @@ export class TodoService {
 
     const todoInsert = todoToDbInsert(todo, user.id);
 
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('todos')
       .insert(todoInsert)
       .select()
@@ -103,7 +104,8 @@ export class TodoService {
 
     const dbUpdate = todoToDbUpdate(updates);
 
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('todos')
       .update(dbUpdate)
       .eq('id', id)
@@ -175,7 +177,7 @@ export class TodoService {
             return this.deleteTodo(operation.todo.id);
 
           default:
-            throw new Error(`Unknown operation type: ${(operation as any).type}`);
+            throw new Error(`Unknown operation type: ${(operation as { type: string }).type}`);
         }
       })
     );
@@ -292,7 +294,7 @@ export class TodoService {
    */
   async checkConnectivity(): Promise<boolean> {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('todos')
         .select('count')
         .limit(1);
@@ -306,6 +308,3 @@ export class TodoService {
 
 // Export singleton instance
 export const todoService = new TodoService();
-
-// Export types for external use
-export type { TodoOperation, RealtimePayload };
