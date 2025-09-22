@@ -17,6 +17,7 @@ export interface Todo {
   timerStatus?: TimerStatus; // Timer status for pomodoro
   timerStartTime?: Date;     // When timer was started
   timerDuration?: number;    // Timer duration in minutes
+  updated_at?: Date;   // Last update timestamp (for conflict resolution)
 }
 
 // Component prop types

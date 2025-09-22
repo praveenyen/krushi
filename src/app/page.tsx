@@ -1,21 +1,27 @@
 import TodoApp from "../components/TodoApp";
 import ThemeSwitch from "../components/ThemeSwitch";
+import AuthGuard from "../components/AuthGuard";
+import UserProfile from "../components/UserProfile";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" aria-hidden="true"></div>
+    <AuthGuard>
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" aria-hidden="true"></div>
 
-      {/* Theme Switch */}
-      <ThemeSwitch />
+        {/* Header with Theme Switch and User Profile */}
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+          <UserProfile />
+          <ThemeSwitch />
+        </div>
 
-      {/* Main Content */}
-      <div className="relative z-10">
-        <TodoApp />
-      </div>
+        {/* Main Content */}
+        <div className="relative z-10">
+          <TodoApp />
+        </div>
 
-      {/* Hidden content for SEO */}
+        {/* Hidden content for SEO */}
       <div className="sr-only">
         <h1>Krushi - Harness the Power of Daily Effort</h1>
         <p>
@@ -33,7 +39,8 @@ export default function Home() {
           <li>Mobile-responsive design</li>
           <li>Focus on what truly matters</li>
         </ul>
-      </div>
-    </main>
+        </div>
+      </main>
+    </AuthGuard>
   );
 }
