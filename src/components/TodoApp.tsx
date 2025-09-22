@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Todo, TodoPriority, TodoSortOption } from '../types/todo';
+import React, { useEffect, useRef } from 'react';
 import { loadTodos, saveTodos } from '../services/localStorage';
-import { sortTodos } from '../utils/todoUtils';
-import { useTimer } from '../contexts/TimerContext';
+import { useTodoStore } from '../stores/todoStore';
+import { useTimerStore } from '../stores/timerStore';
 import TodoInput from './TodoInput';
 import TodoStats from './TodoStats';
 import TodoList from './TodoList';
@@ -16,116 +15,102 @@ import TimerSettings from './TimerSettings';
  * and coordinates between child components
  */
 export default function TodoApp() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [inputValue, setInputValue] = useState<string>('');
-  const [sortBy, setSortBy] = useState<TodoSortOption>('createdAt');
-  const [showTimerOverlay, setShowTimerOverlay] = useState(false);
-  const [completedTimerTodo, setCompletedTimerTodo] = useState<Todo | null>(null);
-  const [showTimerSettings, setShowTimerSettings] = useState(false);
+  // Ref to track active timer timeout
+  const timerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  const { config, setActiveTimer } = useTimer();
+  // Todo store
+  const {
+    todos,
+    inputValue,
+    sortBy,
+    setTodos,
+    setInputValue,
+    setSortBy,
+    addTodo,
+    toggleTodo,
+    deleteTodo,
+    updateTodo,
+    getSortedTodos,
+  } = useTodoStore();
+
+  // Timer store
+  const {
+    config,
+    activeTimer,
+    showTimerOverlay,
+    completedTimerTodo,
+    showTimerSettings,
+    setShowTimerSettings,
+    startTimer: startTimerStore,
+    stopTimer: stopTimerStore,
+    completeTimer,
+    closeTimerOverlay,
+  } = useTimerStore();
 
   // Load existing todos on component mount
   useEffect(() => {
-    loadTodosFromStorage();
-  }, []);
-
-  /**
-   * Loads todos from localStorage and updates state
-   */
-  const loadTodosFromStorage = () => {
     const savedTodos = loadTodos();
-    setTodos(savedTodos);
-  };
-
-  /**
-   * Saves todos to localStorage
-   * @param todosToSave - Array of todos to save
-   */
-  const saveTodosToStorage = (todosToSave: Todo[]) => {
-    const success = saveTodos(todosToSave);
-    if (!success) {
-      console.warn('Failed to save todos to localStorage');
+    if (savedTodos.length > 0) {
+      setTodos(savedTodos);
     }
-  };
+  }, [setTodos]);
 
-  /**
-   * Creates a new todo item and adds it to the list
-   * @param text - Text content for the new todo
-   * @param priority - Priority level for the new todo
-   */
-  const addTodo = (text: string, priority: TodoPriority) => {
-    const newTodo: Todo = {
-      id: Date.now().toString(), // Simple timestamp-based ID
-      text: text.trim(),
-      completed: false,
-      createdAt: new Date(),
-      priority: priority
+  // Save todos to localStorage whenever todos change
+  useEffect(() => {
+    if (todos.length > 0) {
+      const success = saveTodos(todos);
+      if (!success) {
+        console.warn('Failed to save todos to localStorage');
+      }
+    }
+  }, [todos]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerTimeoutRef.current) {
+        clearTimeout(timerTimeoutRef.current);
+      }
     };
-
-    const updatedTodos = [...todos, newTodo];
-    setTodos(updatedTodos);
-    saveTodosToStorage(updatedTodos);
-    
-    // Clear input field after successful todo creation
-    setInputValue('');
-  };
-
-  /**
-   * Toggles the completion status of a todo item
-   * @param id - ID of the todo to toggle
-   */
-  const toggleTodo = (id: string) => {
-    const updatedTodos = todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    );
-    
-    setTodos(updatedTodos);
-    saveTodosToStorage(updatedTodos);
-  };
-
-  /**
-   * Removes a todo item from the list
-   * @param id - ID of the todo to delete
-   */
-  const deleteTodo = (id: string) => {
-    const updatedTodos = todos.filter(todo => todo.id !== id);
-    setTodos(updatedTodos);
-    saveTodosToStorage(updatedTodos);
-  };
-
-  /**
-   * Handles input value changes
-   * @param value - New input value
-   */
-  const handleInputChange = (value: string) => {
-    setInputValue(value);
-  };
+  }, []);
 
   /**
    * Starts a pomodoro timer for a specific todo
    * @param id - ID of the todo to start timer for
    */
   const startTimer = (id: string) => {
-    const updatedTodos = todos.map(todo =>
-      todo.id === id ? {
-        ...todo,
-        timerStatus: 'running' as const,
-        timerStartTime: new Date(),
-        timerDuration: config.defaultDuration
-      } : {
-        ...todo,
-        timerStatus: todo.timerStatus === 'running' ? 'idle' as const : todo.timerStatus
-      }
-    );
-    
-    setTodos(updatedTodos);
-    saveTodosToStorage(updatedTodos);
-    setActiveTimer(id);
-    
+    // Clear any existing timer
+    if (timerTimeoutRef.current) {
+      clearTimeout(timerTimeoutRef.current);
+    }
+
+    // Stop any existing timer first
+    if (activeTimer) {
+      updateTodo(activeTimer, {
+        timerStatus: 'idle',
+        timerStartTime: undefined,
+        timerDuration: undefined,
+      });
+    }
+
+    // Get the todo text before starting timer
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    // Start new timer
+    updateTodo(id, {
+      timerStatus: 'running',
+      timerStartTime: new Date(),
+      timerDuration: config.defaultDuration,
+    });
+
+    startTimerStore(id);
+
     // Set timer to complete after duration
-    setTimeout(() => {
-      completeTimer(id);
+    console.log(`Starting timer for ${config.defaultDuration} minutes (${config.defaultDuration * 60 * 1000}ms)`);
+    timerTimeoutRef.current = setTimeout(() => {
+      console.log(`Timer completed for todo: ${todo.text}`);
+      handleTimerComplete(id, todo.text);
     }, config.defaultDuration * 60 * 1000);
   };
 
@@ -134,77 +119,55 @@ export default function TodoApp() {
    * @param id - ID of the todo to stop timer for
    */
   const stopTimer = (id: string) => {
-    const updatedTodos = todos.map(todo =>
-      todo.id === id ? {
-        ...todo,
-        timerStatus: 'idle' as const,
-        timerStartTime: undefined,
-        timerDuration: undefined
-      } : todo
-    );
-    
-    setTodos(updatedTodos);
-    saveTodosToStorage(updatedTodos);
-    setActiveTimer(null);
-  };
-
-  /**
-   * Completes the timer and shows overlay
-   * @param id - ID of the todo whose timer completed
-   */
-  const completeTimer = (id: string) => {
-    const todo = todos.find(t => t.id === id);
-    if (!todo) return;
-    
-    const updatedTodos = todos.map(t =>
-      t.id === id ? {
-        ...t,
-        timerStatus: 'completed' as const
-      } : t
-    );
-    
-    setTodos(updatedTodos);
-    saveTodosToStorage(updatedTodos);
-    setActiveTimer(null);
-    setCompletedTimerTodo(todo);
-    setShowTimerOverlay(true);
-  };
-
-  /**
-   * Closes the timer completion overlay
-   */
-  const closeTimerOverlay = () => {
-    setShowTimerOverlay(false);
-    setCompletedTimerTodo(null);
-    
-    // Reset timer status to idle
-    if (completedTimerTodo) {
-      const updatedTodos = todos.map(todo =>
-        todo.id === completedTimerTodo.id ? {
-          ...todo,
-          timerStatus: 'idle' as const,
-          timerStartTime: undefined,
-          timerDuration: undefined
-        } : todo
-      );
-      
-      setTodos(updatedTodos);
-      saveTodosToStorage(updatedTodos);
+    // Clear the timeout
+    if (timerTimeoutRef.current) {
+      clearTimeout(timerTimeoutRef.current);
+      timerTimeoutRef.current = null;
     }
+
+    updateTodo(id, {
+      timerStatus: 'idle',
+      timerStartTime: undefined,
+      timerDuration: undefined,
+    });
+
+    stopTimerStore();
   };
 
   /**
-   * Computed property for sorted todos
-   * Only sorts pending todos, completed todos remain at bottom
+   * Handles timer completion
+   * @param id - ID of the todo whose timer completed
+   * @param text - Text of the todo
    */
-  const sortedTodos = useMemo(() => {
-    const pendingTodos = todos.filter(todo => !todo.completed);
-    const completedTodos = todos.filter(todo => todo.completed);
+  const handleTimerComplete = (id: string, text: string) => {
+    console.log(`handleTimerComplete called for: ${text}`);
+    // Clear the timeout ref
+    timerTimeoutRef.current = null;
     
-    const sortedPending = sortTodos(pendingTodos, sortBy);
-    
-    return [...sortedPending, ...completedTodos];
-  }, [todos, sortBy]);
+    updateTodo(id, {
+      timerStatus: 'completed',
+    });
+
+    console.log('Calling completeTimer...');
+    completeTimer(id, text);
+  };
+
+  /**
+   * Handles closing timer overlay and resetting timer status
+   */
+  const handleCloseTimerOverlay = () => {
+    if (completedTimerTodo) {
+      updateTodo(completedTimerTodo.id, {
+        timerStatus: 'idle',
+        timerStartTime: undefined,
+        timerDuration: undefined,
+      });
+    }
+    closeTimerOverlay();
+  };
+
+  // Get sorted todos
+  const sortedTodos = getSortedTodos();
 
   return (
     <article className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -254,7 +217,7 @@ export default function TodoApp() {
               </div>
               <TodoInput
                 value={inputValue}
-                onChange={handleInputChange}
+                onChange={setInputValue}
                 onSubmit={addTodo}
               />
             </div>
@@ -279,7 +242,7 @@ export default function TodoApp() {
       {showTimerOverlay && completedTimerTodo && (
         <TimerOverlay
           todoText={completedTimerTodo.text}
-          onClose={closeTimerOverlay}
+          onClose={handleCloseTimerOverlay}
         />
       )}
 

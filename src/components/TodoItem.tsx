@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { TodoItemProps } from '../types/todo';
-import { useTimer } from '../contexts/TimerContext';
+import { useTimerStore } from '../stores/timerStore';
 
 export default function TodoItem({ todo, onToggle, onDelete, onStartTimer, onStopTimer }: TodoItemProps) {
-  const { activeTimer } = useTimer();
+  const { activeTimer } = useTimerStore();
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   
   const isTimerActive = activeTimer === todo.id && todo.timerStatus === 'running';

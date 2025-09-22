@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../contexts/ThemeContext";
-import { TimerProvider } from "../contexts/TimerContext";
 import StructuredData from "../components/StructuredData";
 
 const geistSans = Geist({
@@ -86,9 +85,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <TimerProvider>
-            {children}
-          </TimerProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTimer } from '../contexts/TimerContext';
+import { useTimerStore } from '../stores/timerStore';
 
 interface TimerSettingsProps {
     isOpen: boolean;
@@ -7,7 +7,7 @@ interface TimerSettingsProps {
 }
 
 export default function TimerSettings({ isOpen, onClose }: TimerSettingsProps) {
-    const { config, updateConfig } = useTimer();
+    const { config, updateConfig } = useTimerStore();
     const [duration, setDuration] = useState(config.defaultDuration);
 
     if (!isOpen) return null;
