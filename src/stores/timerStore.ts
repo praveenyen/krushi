@@ -27,7 +27,7 @@ interface TimerState {
 }
 
 const DEFAULT_CONFIG: TimerConfig = {
-  defaultDuration: 0.1, // 0.1 minutes (6 seconds) for testing
+  defaultDuration: 5, // 5 minutes default
 };
 
 export const useTimerStore = create<TimerState>()(
