@@ -4,9 +4,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Todo, TodoPriority, TodoSortOption } from '../types/todo';
 import { loadTodos, saveTodos } from '../services/localStorage';
 import { sortTodos } from '../utils/todoUtils';
+import { useTimer } from '../contexts/TimerContext';
 import TodoInput from './TodoInput';
 import TodoStats from './TodoStats';
 import TodoList from './TodoList';
+import TimerOverlay from './TimerOverlay';
+import TimerSettings from './TimerSettings';
 
 /**
  * Main TodoApp container component that manages application state
@@ -16,6 +19,11 @@ export default function TodoApp() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState<string>('');
   const [sortBy, setSortBy] = useState<TodoSortOption>('createdAt');
+  const [showTimerOverlay, setShowTimerOverlay] = useState(false);
+  const [completedTimerTodo, setCompletedTimerTodo] = useState<Todo | null>(null);
+  const [showTimerSettings, setShowTimerSettings] = useState(false);
+  
+  const { config, setActiveTimer } = useTimer();
 
   // Load existing todos on component mount
   useEffect(() => {
@@ -95,6 +103,97 @@ export default function TodoApp() {
   };
 
   /**
+   * Starts a pomodoro timer for a specific todo
+   * @param id - ID of the todo to start timer for
+   */
+  const startTimer = (id: string) => {
+    const updatedTodos = todos.map(todo =>
+      todo.id === id ? {
+        ...todo,
+        timerStatus: 'running' as const,
+        timerStartTime: new Date(),
+        timerDuration: config.defaultDuration
+      } : {
+        ...todo,
+        timerStatus: todo.timerStatus === 'running' ? 'idle' as const : todo.timerStatus
+      }
+    );
+    
+    setTodos(updatedTodos);
+    saveTodosToStorage(updatedTodos);
+    setActiveTimer(id);
+    
+    // Set timer to complete after duration
+    setTimeout(() => {
+      completeTimer(id);
+    }, config.defaultDuration * 60 * 1000);
+  };
+
+  /**
+   * Stops the active timer
+   * @param id - ID of the todo to stop timer for
+   */
+  const stopTimer = (id: string) => {
+    const updatedTodos = todos.map(todo =>
+      todo.id === id ? {
+        ...todo,
+        timerStatus: 'idle' as const,
+        timerStartTime: undefined,
+        timerDuration: undefined
+      } : todo
+    );
+    
+    setTodos(updatedTodos);
+    saveTodosToStorage(updatedTodos);
+    setActiveTimer(null);
+  };
+
+  /**
+   * Completes the timer and shows overlay
+   * @param id - ID of the todo whose timer completed
+   */
+  const completeTimer = (id: string) => {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+    
+    const updatedTodos = todos.map(t =>
+      t.id === id ? {
+        ...t,
+        timerStatus: 'completed' as const
+      } : t
+    );
+    
+    setTodos(updatedTodos);
+    saveTodosToStorage(updatedTodos);
+    setActiveTimer(null);
+    setCompletedTimerTodo(todo);
+    setShowTimerOverlay(true);
+  };
+
+  /**
+   * Closes the timer completion overlay
+   */
+  const closeTimerOverlay = () => {
+    setShowTimerOverlay(false);
+    setCompletedTimerTodo(null);
+    
+    // Reset timer status to idle
+    if (completedTimerTodo) {
+      const updatedTodos = todos.map(todo =>
+        todo.id === completedTimerTodo.id ? {
+          ...todo,
+          timerStatus: 'idle' as const,
+          timerStartTime: undefined,
+          timerDuration: undefined
+        } : todo
+      );
+      
+      setTodos(updatedTodos);
+      saveTodosToStorage(updatedTodos);
+    }
+  };
+
+  /**
    * Computed property for sorted todos
    * Only sorts pending todos, completed todos remain at bottom
    */
@@ -137,6 +236,22 @@ export default function TodoApp() {
           <section className="w-full lg:w-1/2 flex flex-col" aria-label="Task Management">
             {/* Todo Input Section */}
             <div className="bg-gray-50 dark:bg-gray-700 p-6 sm:p-8 border-b border-gray-200 dark:border-gray-600">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                  Add New Task
+                </h2>
+                <button
+                  onClick={() => setShowTimerSettings(true)}
+                  className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200
+                    hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  title="Timer Settings"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
+              </div>
               <TodoInput
                 value={inputValue}
                 onChange={handleInputChange}
@@ -150,6 +265,8 @@ export default function TodoApp() {
                 todos={sortedTodos}
                 onToggle={toggleTodo}
                 onDelete={deleteTodo}
+                onStartTimer={startTimer}
+                onStopTimer={stopTimer}
                 sortBy={sortBy}
                 onSortChange={setSortBy}
               />
@@ -157,6 +274,20 @@ export default function TodoApp() {
           </section>
         </div>
       </div>
+      
+      {/* Timer Completion Overlay */}
+      {showTimerOverlay && completedTimerTodo && (
+        <TimerOverlay
+          todoText={completedTimerTodo.text}
+          onClose={closeTimerOverlay}
+        />
+      )}
+
+      {/* Timer Settings Modal */}
+      <TimerSettings
+        isOpen={showTimerSettings}
+        onClose={() => setShowTimerSettings(false)}
+      />
     </article>
   );
 }

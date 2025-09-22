@@ -2,7 +2,7 @@ import React from 'react';
 import { TodoListProps, TodoSortOption } from '../types/todo';
 import TodoItem from './TodoItem';
 
-export default function TodoList({ todos, onToggle, onDelete, sortBy, onSortChange }: TodoListProps) {
+export default function TodoList({ todos, onToggle, onDelete, onStartTimer, onStopTimer, sortBy, onSortChange }: TodoListProps) {
   // Handle empty state when no todos exist
   if (todos.length === 0) {
     return (
@@ -75,6 +75,8 @@ export default function TodoList({ todos, onToggle, onDelete, sortBy, onSortChan
                 todo={todo}
                 onToggle={() => onToggle(todo.id)}
                 onDelete={() => onDelete(todo.id)}
+                onStartTimer={() => onStartTimer(todo.id)}
+                onStopTimer={() => onStopTimer(todo.id)}
               />
             ))}
           </div>
@@ -95,6 +97,8 @@ export default function TodoList({ todos, onToggle, onDelete, sortBy, onSortChan
                 todo={todo}
                 onToggle={() => onToggle(todo.id)}
                 onDelete={() => onDelete(todo.id)}
+                onStartTimer={() => onStartTimer(todo.id)}
+                onStopTimer={() => onStopTimer(todo.id)}
               />
             ))}
           </div>

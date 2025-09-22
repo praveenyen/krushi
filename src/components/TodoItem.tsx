@@ -1,7 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TodoItemProps } from '../types/todo';
+import { useTimer } from '../contexts/TimerContext';
 
-export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
+export default function TodoItem({ todo, onToggle, onDelete, onStartTimer, onStopTimer }: TodoItemProps) {
+  const { activeTimer } = useTimer();
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  
+  const isTimerActive = activeTimer === todo.id && todo.timerStatus === 'running';
+  
+  // Calculate time left when timer is running
+  useEffect(() => {
+    if (isTimerActive && todo.timerStartTime && todo.timerDuration) {
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - new Date(todo.timerStartTime!).getTime();
+        const remaining = (todo.timerDuration! * 60 * 1000) - elapsed;
+        
+        if (remaining <= 0) {
+          setTimeLeft(0);
+          clearInterval(interval);
+        } else {
+          setTimeLeft(Math.ceil(remaining / 1000));
+        }
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [isTimerActive, todo.timerStartTime, todo.timerDuration]);
+  
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
   return (
     <div className={`group flex items-center gap-4 p-4 sm:p-5 
       bg-white dark:bg-gray-800 border-2 rounded-xl shadow-sm
@@ -75,6 +105,40 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
           })}
         </p>
       </div>
+
+      {/* Timer display for active timer */}
+      {isTimerActive && timeLeft !== null && (
+        <div className="flex-shrink-0 px-3 py-2 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 rounded-lg font-mono text-sm font-medium">
+          {formatTime(timeLeft)}
+        </div>
+      )}
+
+      {/* Timer controls - only show for pending todos */}
+      {!todo.completed && (
+        <div className="flex-shrink-0 flex items-center gap-2">
+          {/* Play/Stop Timer Button */}
+          <button
+            onClick={isTimerActive ? onStopTimer : onStartTimer}
+            className={`p-2 sm:p-3 rounded-lg focus:outline-none focus:ring-4 transition-all duration-200 ease-in-out
+              opacity-0 group-hover:opacity-100 sm:opacity-100
+              ${isTimerActive 
+                ? 'text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 focus:ring-red-500/20'
+                : 'text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20 focus:ring-green-500/20'
+              }`}
+            aria-label={isTimerActive ? `Stop timer for "${todo.text}"` : `Start timer for "${todo.text}"`}
+          >
+            {isTimerActive ? (
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Delete button with enhanced styling */}
       <button
