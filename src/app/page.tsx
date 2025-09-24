@@ -2,6 +2,7 @@ import TodoApp from "../components/TodoApp";
 import ThemeSwitch from "../components/ThemeSwitch";
 import AuthGuard from "../components/AuthGuard";
 import UserProfile from "../components/UserProfile";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="relative z-10">
+          <Link className="bg-purple-800 px-4 py-1 rounded text-white font-bold text-sm" href={'/loan'}>Loan</Link>
           <TodoApp />
         </div>
 
