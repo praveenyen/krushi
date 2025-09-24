@@ -109,3 +109,6 @@ function calculateCompoundInterest(
         breakdown: breakdown,
     };
 }
+
+// Export the function and interfaces
+export { calculateCompoundInterest, type BreakdownPeriod, type InterestCalculationResult };

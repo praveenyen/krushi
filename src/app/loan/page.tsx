@@ -2,92 +2,46 @@
 
 import React, { useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts'
+import { calculateCompoundInterest, type BreakdownPeriod, type InterestCalculationResult } from '../../utils/finance'
 
-// Import the calculateCompoundInterest function
-function calculateCompoundInterest(
-    principal: number,
-    monthlyRate: number,
-    totalMonths: number,
-    compoundingInterval: number
-) {
-    if (
-        typeof principal !== 'number' ||
-        typeof monthlyRate !== 'number' ||
-        typeof totalMonths !== 'number' ||
-        typeof compoundingInterval !== 'number'
-    ) {
-        throw new Error('Invalid input. All parameters must be valid numbers.');
-    }
-
-    let currentPrincipal = principal;
-    const rateAsDecimal = monthlyRate / 100;
-    const breakdown = [];
-
-    const numFullPeriods = Math.floor(totalMonths / compoundingInterval);
-    const remainingMonths = totalMonths % compoundingInterval;
-
-    for (let i = 0; i < numFullPeriods; i++) {
-        const startingPrincipalForPeriod = currentPrincipal;
-        const interestForPeriod = startingPrincipalForPeriod * rateAsDecimal * compoundingInterval;
-        const endingPrincipalForPeriod = startingPrincipalForPeriod + interestForPeriod;
-
-        const startMonth = i * compoundingInterval + 1;
-        const endMonth = (i + 1) * compoundingInterval;
-
-        breakdown.push({
-            period: i + 1,
-            label: `Months ${startMonth} to ${endMonth}`,
-            startingPrincipal: parseFloat(startingPrincipalForPeriod.toFixed(2)),
-            interestEarned: parseFloat(interestForPeriod.toFixed(2)),
-            endingPrincipal: parseFloat(endingPrincipalForPeriod.toFixed(2)),
-        });
-
-        currentPrincipal = endingPrincipalForPeriod;
-    }
-
-    if (remainingMonths > 0) {
-        const startingPrincipalForPeriod = currentPrincipal;
-        const interestForRemaining = startingPrincipalForPeriod * rateAsDecimal * remainingMonths;
-        const endingPrincipalForPeriod = startingPrincipalForPeriod + interestForRemaining;
-
-        const startMonth = numFullPeriods * compoundingInterval + 1;
-        const endMonth = totalMonths;
-
-        breakdown.push({
-            period: numFullPeriods + 1,
-            label: `Remaining ${remainingMonths} Months (${startMonth} to ${endMonth})`,
-            startingPrincipal: parseFloat(startingPrincipalForPeriod.toFixed(2)),
-            interestEarned: parseFloat(interestForRemaining.toFixed(2)),
-            endingPrincipal: parseFloat(endingPrincipalForPeriod.toFixed(2)),
-        });
-
-        currentPrincipal = endingPrincipalForPeriod;
-    }
-
-    return {
-        inputs: {
-            principal,
-            monthlyRate,
-            totalMonths,
-            compoundingInterval,
-        },
-        totalAmount: parseFloat(currentPrincipal.toFixed(2)),
-        breakdown: breakdown,
-    };
+interface FormData {
+    principalAmount: string;
+    interestRate: string;
+    months: string;
+    interval: string;
 }
 
+interface ChartDataPoint {
+    period: string;
+    principal: number;
+    interest: number;
+    total: number;
+    cumulativeInterest: number;
+}
+
+interface PieDataPoint {
+    name: string;
+    value: number;
+    color: string;
+    [key: string]: string | number;
+}
+
+
+
+
+
 const FinancialActivitiesPage = () => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         principalAmount: '',
         interestRate: '',
         months: '',
         interval: ''
     })
 
-    const [result, setResult] = useState(null)
+    const [result, setResult] = useState<InterestCalculationResult | null>(null)
     const [isCalculating, setIsCalculating] = useState(false)
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
         setFormData(prev => ({
             ...prev,
@@ -95,7 +49,7 @@ const FinancialActivitiesPage = () => {
         }))
     }
 
-    const handleCalculate = (e) => {
+    const handleCalculate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setIsCalculating(true)
 
@@ -118,7 +72,8 @@ const FinancialActivitiesPage = () => {
             const calculationResult = calculateCompoundInterest(principal, rate, months, interval)
             setResult(calculationResult)
         } catch (error) {
-            alert('Error in calculation: ' + error.message)
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+            alert('Error in calculation: ' + errorMessage)
         } finally {
             setIsCalculating(false)
         }
@@ -135,16 +90,16 @@ const FinancialActivitiesPage = () => {
     }
 
     // Prepare chart data
-    const chartData = result?.breakdown.map((item, index) => ({
+    const chartData: ChartDataPoint[] = result?.breakdown.map((item: BreakdownPeriod, index: number) => ({
         period: `Period ${item.period}`,
         principal: item.startingPrincipal,
         interest: item.interestEarned,
         total: item.endingPrincipal,
-        cumulativeInterest: result.breakdown.slice(0, index + 1).reduce((sum, b) => sum + b.interestEarned, 0)
+        cumulativeInterest: result.breakdown.slice(0, index + 1).reduce((sum: number, b: BreakdownPeriod) => sum + b.interestEarned, 0)
     })) || []
 
     // Pie chart data for final breakdown
-    const pieData = result ? [
+    const pieData: PieDataPoint[] = result ? [
         { name: 'Principal', value: result.inputs.principal, color: '#3b82f6' },
         { name: 'Interest Earned', value: result.totalAmount - result.inputs.principal, color: '#10b981' }
     ] : []
@@ -310,7 +265,7 @@ const FinancialActivitiesPage = () => {
                                                     cx="50%"
                                                     cy="50%"
                                                     labelLine={false}
-                                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+                                                    label
                                                     outerRadius={80}
                                                     fill="#8884d8"
                                                     dataKey="value"
@@ -356,7 +311,7 @@ const FinancialActivitiesPage = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {result.breakdown.map((period, index) => (
+                                                {result.breakdown.map((period: BreakdownPeriod, index: number) => (
                                                     <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
                                                         <td className="px-4 py-2 text-sm text-gray-900">{period.period}</td>
                                                         <td className="px-4 py-2 text-sm text-gray-600">{period.label}</td>
