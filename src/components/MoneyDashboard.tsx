@@ -6,6 +6,8 @@ import UserCard from './UserCard';
 import TransactionForm from './TransactionForm';
 import { FinancialCharts } from './FinancialCharts';
 import type { CreateTransactionData } from '../types/money';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface DashboardStats {
   totalBalance: number;
@@ -35,6 +37,7 @@ export default function MoneyDashboard() {
     setShowPersonForm,
     refreshData,
   } = useMoneyStore();
+  const router = useRouter();
 
   const [stats, setStats] = useState<DashboardStats>({
     totalBalance: 0,
@@ -114,7 +117,7 @@ export default function MoneyDashboard() {
   // Handle user card click navigation
   const handleUserCardClick = (personId: string) => {
     // TODO: Navigate to user detail page when implemented
-    console.log('Navigate to user detail page:', personId);
+    router.push(`/money/users/${personId}`)
   };
 
   // Format currency
@@ -171,7 +174,10 @@ export default function MoneyDashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Money Tracker</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex gap-4 items-center">
+              Money Tracker
+              <Link href={'/'} className='text-sm text-blue-900 hover:text-blue-600'>Home</Link>
+            </h1>
             <p className="text-gray-600">Track your financial relationships and transactions</p>
           </div>
 

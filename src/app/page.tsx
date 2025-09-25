@@ -19,28 +19,31 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="relative z-10">
-          <Link className="bg-purple-800 px-4 py-1 rounded text-white font-bold text-sm" href={'/loan'}>Loan</Link>
+          <div className="flex gap-2">
+            <Link className="bg-blue-800 px-4 py-1 rounded text-white font-bold text-sm" href={'/loan'}>Loan</Link>
+            <Link className="bg-green-500 px-4 py-1 rounded text-white font-bold text-sm" href={'/money'}>Money</Link>
+          </div>
           <TodoApp />
         </div>
 
         {/* Hidden content for SEO */}
-      <div className="sr-only">
-        <h1>Krushi - Harness the Power of Daily Effort</h1>
-        <p>
-          Harness the power of your daily effort with Krushi, the minimalist app designed to help you focus on what truly matters: consistent progress.
-          Build sustainable habits, track your daily efforts, and maintain focus on meaningful tasks that drive real progress.
-        </p>
-        <h2>Key Features</h2>
-        <ul>
-          <li>Minimalist task management focused on daily effort</li>
-          <li>Progress tracking for consistent habit building</li>
-          <li>Priority-based task organization</li>
-          <li>Clean, distraction-free interface</li>
-          <li>Dark and light theme support</li>
-          <li>Automatic progress persistence</li>
-          <li>Mobile-responsive design</li>
-          <li>Focus on what truly matters</li>
-        </ul>
+        <div className="sr-only">
+          <h1>Krushi - Harness the Power of Daily Effort</h1>
+          <p>
+            Harness the power of your daily effort with Krushi, the minimalist app designed to help you focus on what truly matters: consistent progress.
+            Build sustainable habits, track your daily efforts, and maintain focus on meaningful tasks that drive real progress.
+          </p>
+          <h2>Key Features</h2>
+          <ul>
+            <li>Minimalist task management focused on daily effort</li>
+            <li>Progress tracking for consistent habit building</li>
+            <li>Priority-based task organization</li>
+            <li>Clean, distraction-free interface</li>
+            <li>Dark and light theme support</li>
+            <li>Automatic progress persistence</li>
+            <li>Mobile-responsive design</li>
+            <li>Focus on what truly matters</li>
+          </ul>
         </div>
       </main>
     </AuthGuard>
