@@ -82,12 +82,12 @@ export function BalanceAreaChart({ data, loading, error }: BalanceAreaChartProps
           <div className="space-y-1">
             {data.credits > 0 && (
               <p className="text-sm text-green-600">
-                Credits: <span className="font-medium">${data.credits.toLocaleString()}</span>
+                Credits: <span className="font-medium">₹{data.credits.toLocaleString('en-IN')}</span>
               </p>
             )}
             {data.debits > 0 && (
               <p className="text-sm text-red-600">
-                Debits: <span className="font-medium">${data.debits.toLocaleString()}</span>
+                Debits: <span className="font-medium">₹{data.debits.toLocaleString('en-IN')}</span>
               </p>
             )}
             <div className={data.credits > 0 || data.debits > 0 ? "border-t pt-1" : ""}>
@@ -95,7 +95,7 @@ export function BalanceAreaChart({ data, loading, error }: BalanceAreaChartProps
                 data.balance > 0 ? 'text-green-600' : 
                 data.balance < 0 ? 'text-red-600' : 'text-gray-600'
               }`}>
-                Balance: ${data.balance.toLocaleString()}
+                Balance: ₹{data.balance.toLocaleString('en-IN')}
               </p>
             </div>
           </div>
@@ -182,7 +182,7 @@ export function BalanceAreaChart({ data, loading, error }: BalanceAreaChartProps
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value) => `$${value.toLocaleString()}`}
+            tickFormatter={(value) => `₹${value.toLocaleString('en-IN')}`}
           />
           <Tooltip content={<CustomTooltip />} />
           

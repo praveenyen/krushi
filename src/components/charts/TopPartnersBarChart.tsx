@@ -44,7 +44,7 @@ export function TopPartnersBarChart({ data, loading, error }: TopPartnersBarChar
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{data.fullName}</p>
           <p className="text-sm text-gray-600">
-            Amount: <span className="font-medium">${data.amount.toLocaleString()}</span>
+            Amount: <span className="font-medium">₹{data.amount.toLocaleString('en-IN')}</span>
           </p>
           <p className="text-sm text-gray-600">
             Type: <span className="font-medium capitalize">{data.type}</span>
@@ -73,7 +73,7 @@ export function TopPartnersBarChart({ data, loading, error }: TopPartnersBarChar
           fontSize="12"
           fontWeight="500"
         >
-          ${value.toLocaleString()}
+          ₹{value.toLocaleString('en-IN')}
         </text>
       </g>
     );
@@ -145,7 +145,7 @@ export function TopPartnersBarChart({ data, loading, error }: TopPartnersBarChar
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value) => `$${value.toLocaleString()}`}
+            tickFormatter={(value) => `₹${value.toLocaleString('en-IN')}`}
           />
           <Tooltip content={<CustomTooltip />} />
           <Bar 

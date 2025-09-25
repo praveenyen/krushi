@@ -11,35 +11,35 @@ interface UserCardProps {
   className?: string;
 }
 
-export default function UserCard({ 
-  user, 
-  balance, 
-  lastTransaction, 
-  onClick, 
-  className = '' 
+export default function UserCard({
+  user,
+  balance,
+  lastTransaction,
+  onClick,
+  className = ''
 }: UserCardProps) {
   // Determine balance color and styling
   const isPositive = balance > 0;
   const isNegative = balance < 0;
   const isZero = balance === 0;
 
-  const balanceColorClass = isPositive 
-    ? 'text-green-600' 
-    : isNegative 
-    ? 'text-red-600' 
-    : 'text-gray-500';
+  const balanceColorClass = isPositive
+    ? 'text-green-600'
+    : isNegative
+      ? 'text-red-600'
+      : 'text-gray-500';
 
-  const cardBorderClass = isPositive 
-    ? 'border-l-green-500' 
-    : isNegative 
-    ? 'border-l-red-500' 
-    : 'border-l-gray-300';
+  const cardBorderClass = isPositive
+    ? 'border-l-green-500'
+    : isNegative
+      ? 'border-l-red-500'
+      : 'border-l-gray-300';
 
   // Format balance for display
   const formatBalance = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(Math.abs(amount));
@@ -64,10 +64,10 @@ export default function UserCard({
       const months = Math.floor(diffInDays / 30);
       return months === 1 ? '1 month ago' : `${months} months ago`;
     } else {
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
       });
     }
   };
@@ -129,7 +129,7 @@ export default function UserCard({
             <h3 className="text-lg font-semibold text-gray-900 truncate">
               {user.name}
             </h3>
-            
+
             {user.phone_number && (
               <p className="text-sm text-gray-500 truncate">
                 {user.phone_number}
@@ -153,7 +153,7 @@ export default function UserCard({
           <div className="text-sm text-gray-500">
             {getBalanceDescription()}
           </div>
-          
+
           {/* Balance indicator icon */}
           <div className="flex justify-end mt-1">
             {isPositive && (

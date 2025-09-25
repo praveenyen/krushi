@@ -49,7 +49,7 @@ export function CreditDebitPieChart({ data, loading, error }: CreditDebitPieChar
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{data.name}</p>
           <p className="text-sm text-gray-600">
-            Amount: <span className="font-medium">${data.value.toLocaleString()}</span>
+            Amount: <span className="font-medium">₹{data.value.toLocaleString('en-IN')}</span>
           </p>
           <p className="text-sm text-gray-600">
             Percentage: <span className="font-medium">{data.percentage.toFixed(1)}%</span>
@@ -128,7 +128,7 @@ export function CreditDebitPieChart({ data, loading, error }: CreditDebitPieChar
             height={36}
             formatter={(value, entry: any) => (
               <span style={{ color: entry.color }}>
-                {value}: ${entry.payload.value.toLocaleString()}
+                {value}: ₹{entry.payload.value.toLocaleString('en-IN')}
               </span>
             )}
           />

@@ -55,7 +55,7 @@ export function TransactionTimelineChart({ data, loading, error }: TransactionTi
           <p className="font-medium text-gray-900 mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: <span className="font-medium">${entry.value.toLocaleString()}</span>
+              {entry.name}: <span className="font-medium">₹{entry.value.toLocaleString('en-IN')}</span>
             </p>
           ))}
           {payload[0]?.payload?.transactions && (
@@ -137,7 +137,7 @@ export function TransactionTimelineChart({ data, loading, error }: TransactionTi
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value) => `$${value.toLocaleString()}`}
+            tickFormatter={(value) => `₹${value.toLocaleString('en-IN')}`}
           />
           <Tooltip content={<CustomTooltip />} />
           <Legend 
