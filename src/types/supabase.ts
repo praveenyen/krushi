@@ -54,6 +54,67 @@ export interface Database {
           updated_at?: string
         }
       }
+      persons: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          phone_number: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          phone_number?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          phone_number?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      transactions: {
+        Row: {
+          id: string
+          user_id: string
+          person_id: string
+          amount: number
+          transaction_type: 'credit' | 'debit'
+          description: string | null
+          transaction_date: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          person_id: string
+          amount: number
+          transaction_type: 'credit' | 'debit'
+          description?: string | null
+          transaction_date?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          person_id?: string
+          amount?: number
+          transaction_type?: 'credit' | 'debit'
+          description?: string | null
+          transaction_date?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -69,7 +130,7 @@ export interface Database {
       }
     }
     Enums: {
-      [_ in never]: never
+      transaction_type_enum: 'credit' | 'debit'
     }
   }
 }
