@@ -74,7 +74,7 @@ export default function MoneyDashboard() {
       });
     };
 
-    // calculateStats();
+    calculateStats();
   }, [transactions, persons, balances]);
 
   // Handle transaction creation

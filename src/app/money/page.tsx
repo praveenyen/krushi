@@ -35,7 +35,7 @@ export default function MoneyPage() {
       }
     };
 
-    // loadData();
+    loadData();
   }, []);
 
 
