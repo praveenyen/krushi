@@ -20,10 +20,12 @@ export interface Transaction {
   transaction_type: TransactionType;
   description: string | null;
   transaction_date: string;
+  parent_transaction_id: string | null;
   created_at: string;
   updated_at: string;
   // Optional joined data
   person?: Person;
+  parent_transaction?: Transaction[];
 }
 
 // Balance summary interface for aggregated data
@@ -54,6 +56,7 @@ export interface CreateTransactionData {
   transaction_type: TransactionType;
   description?: string | null;
   transaction_date?: string;
+  parent_transaction_id?: string | null;
 }
 
 export interface UpdateTransactionData {
@@ -62,6 +65,7 @@ export interface UpdateTransactionData {
   transaction_type?: TransactionType;
   description?: string | null;
   transaction_date?: string;
+  parent_transaction_id?: string | null;
 }
 
 // Filter and query interfaces

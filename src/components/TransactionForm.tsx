@@ -18,6 +18,7 @@ interface FormData {
   transaction_type: TransactionType;
   description: string;
   transaction_date: string;
+  parent_transaction_id: string;
 }
 
 interface FormErrors {
@@ -45,9 +46,11 @@ export function TransactionForm({
 }: TransactionFormProps) {
   const { 
     persons, 
+    transactions,
     loading, 
     createPerson,
-    fetchPersons 
+    fetchPersons,
+    fetchTransactions 
   } = useMoneyStore();
 
   // Form state
@@ -58,7 +61,8 @@ export function TransactionForm({
     description: transaction?.description || '',
     transaction_date: transaction?.transaction_date 
       ? new Date(transaction.transaction_date).toISOString().slice(0, 16)
-      : new Date().toISOString().slice(0, 16)
+      : new Date().toISOString().slice(0, 16),
+    parent_transaction_id: transaction?.parent_transaction_id || ''
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -76,6 +80,20 @@ export function TransactionForm({
       fetchPersons();
     }
   }, [persons.length, fetchPersons]);
+
+  // Load transactions for parent transaction selection
+  useEffect(() => {
+    if (transactions.length === 0) {
+      fetchTransactions();
+    }
+  }, [transactions.length, fetchTransactions]);
+
+  // Load transactions on mount for parent transaction selection
+  useEffect(() => {
+    if (transactions.length === 0) {
+      fetchTransactions();
+    }
+  }, [transactions.length, fetchTransactions]);
 
   // Set initial person search if editing transaction or preselected person
   useEffect(() => {
@@ -98,6 +116,20 @@ export function TransactionForm({
       (person.phone_number && person.phone_number.includes(personSearch))
     );
   }, [persons, personSearch]);
+
+  // Get potential parent transactions for the selected person
+  const parentTransactionOptions = useMemo(() => {
+    if (!formData.person_id) return [];
+    
+    return transactions
+      .filter(t => 
+        t.person_id === formData.person_id && 
+        t.id !== transaction?.id && // Exclude current transaction when editing
+        !t.parent_transaction_id // Only show transactions that aren't already references to other transactions
+      )
+      .sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime())
+      .slice(0, 10); // Limit to recent 10 transactions
+  }, [transactions, formData.person_id, transaction?.id]);
 
   // Validation functions
   const validateAmount = (amount: string): string | undefined => {
@@ -266,7 +298,8 @@ export function TransactionForm({
         amount: parseFloat(formData.amount),
         transaction_type: formData.transaction_type,
         description: formData.description.trim() || null,
-        transaction_date: formData.transaction_date
+        transaction_date: formData.transaction_date,
+        parent_transaction_id: formData.parent_transaction_id || null
       };
       
       await onSubmit(submitData);
@@ -479,6 +512,33 @@ export function TransactionForm({
             {formData.description.length}/500
           </div>
         </div>
+
+        {/* Parent Transaction Selection */}
+        {formData.person_id && parentTransactionOptions.length > 0 && (
+          <div>
+            <label htmlFor="parent_transaction" className="block text-sm font-medium text-gray-700 mb-1">
+              Reference Transaction (Optional)
+            </label>
+            <p className="text-xs text-gray-500 mb-2">
+              Link this transaction to a previous one (e.g., when repaying a loan)
+            </p>
+            <select
+              id="parent_transaction"
+              value={formData.parent_transaction_id}
+              onChange={(e) => handleFieldChange('parent_transaction_id', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">No reference transaction</option>
+              {parentTransactionOptions.map((transaction) => (
+                <option key={transaction.id} value={transaction.id}>
+                  {new Date(transaction.transaction_date).toLocaleDateString()} - 
+                  {transaction.transaction_type === 'credit' ? '+' : '-'}₹{transaction.amount} 
+                  {transaction.description && ` - ${transaction.description.slice(0, 30)}${transaction.description.length > 30 ? '...' : ''}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Form Actions */}
         <div className="flex justify-end space-x-3 pt-4">

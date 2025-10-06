@@ -2,6 +2,7 @@ import TodoApp from "../components/TodoApp";
 import ThemeSwitch from "../components/ThemeSwitch";
 import AuthGuard from "../components/AuthGuard";
 import UserProfile from "../components/UserProfile";
+import Footer from "../components/Footer";
 import Link from "next/link";
 
 export default function Home() {
@@ -45,6 +46,9 @@ export default function Home() {
             <li>Focus on what truly matters</li>
           </ul>
         </div>
+
+        {/* Footer */}
+        <Footer />
       </main>
     </AuthGuard>
   );

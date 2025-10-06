@@ -38,7 +38,15 @@ export class MoneyService {
         .from('transactions')
         .select(`
           *,
-          person:persons(*)
+          person:persons(*),
+          parent_transaction:transactions!parent_transaction_id(
+            id,
+            amount,
+            transaction_type,
+            description,
+            transaction_date,
+            person:persons(name)
+          )
         `)
         .order('transaction_date', { ascending: false })
 
@@ -110,7 +118,8 @@ export class MoneyService {
         amount: data.amount,
         transaction_type: data.transaction_type,
         description: data.description || null,
-        transaction_date: data.transaction_date || new Date().toISOString()
+        transaction_date: data.transaction_date || new Date().toISOString(),
+        parent_transaction_id: data.parent_transaction_id || null
       }
 
       const { data: transaction, error } = await supabase
@@ -118,7 +127,15 @@ export class MoneyService {
         .insert(transactionData)
         .select(`
           *,
-          person:persons(*)
+          person:persons(*),
+          parent_transaction:transactions!parent_transaction_id(
+            id,
+            amount,
+            transaction_type,
+            description,
+            transaction_date,
+            person:persons(name)
+          )
         `)
         .single()
 
@@ -158,7 +175,15 @@ export class MoneyService {
         .eq('id', id)
         .select(`
           *,
-          person:persons(*)
+          person:persons(*),
+          parent_transaction:transactions!parent_transaction_id(
+            id,
+            amount,
+            transaction_type,
+            description,
+            transaction_date,
+            person:persons(name)
+          )
         `)
         .single()
 

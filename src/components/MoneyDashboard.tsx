@@ -27,11 +27,6 @@ export default function MoneyDashboard() {
     loading,
     errors,
     uiState,
-    fetchTopCreditors,
-    fetchTopDebtors,
-    fetchTransactions,
-    fetchPersons,
-    fetchBalances,
     createTransaction,
     setShowTransactionForm,
     setShowPersonForm,
@@ -46,25 +41,6 @@ export default function MoneyDashboard() {
     monthlyCredit: 0,
     monthlyDebit: 0,
   });
-
-  // Load initial data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        await Promise.all([
-          fetchTransactions(),
-          fetchPersons(),
-          fetchBalances(),
-          fetchTopCreditors(5),
-          fetchTopDebtors(5),
-        ]);
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error);
-      }
-    };
-
-    // loadData();
-  }, []);
 
   // Calculate dashboard statistics
   useEffect(() => {
@@ -98,7 +74,7 @@ export default function MoneyDashboard() {
       });
     };
 
-    calculateStats();
+    // calculateStats();
   }, [transactions, persons, balances]);
 
   // Handle transaction creation
