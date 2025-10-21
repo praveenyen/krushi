@@ -23,6 +23,7 @@ export default function Home() {
           <div className="flex gap-2">
             <Link className="bg-blue-800 px-4 py-1 rounded text-white font-bold text-sm" href={'/loan'}>Loan</Link>
             <Link className="bg-green-500 px-4 py-1 rounded text-white font-bold text-sm" href={'/money'}>Money</Link>
+            <Link className="bg-green-700 px-4 py-1 rounded text-white font-bold text-sm" href={'/loan/settlement'}>Loan Settlement</Link>
           </div>
           <TodoApp />
         </div>
